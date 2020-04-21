@@ -1,4 +1,4 @@
-import * as actionTypes from "./actionTypes"
+import * as actionTypes from './actionTypes';
 import agent from '../../api/agent';
 import { history } from '../..';
 
@@ -22,6 +22,7 @@ export const createPlanFail = (error) => {
 };
 
 export const createPlan = (plan) => {
+  console.log(plan);
   return (dispatch) => {
     dispatch(createPlanStart());
     agent.Plans.create(plan)
@@ -88,7 +89,7 @@ export const getPlanStart = () => {
   };
 };
 
-export const getPlan = (id) => dispatch =>
+export const getPlan = (id) => (dispatch) =>
   new Promise((resolve, reject) => {
     dispatch(getPlanStart());
     agent.Plans.get(id)

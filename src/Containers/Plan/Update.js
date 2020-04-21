@@ -16,16 +16,26 @@ import { formatDate } from '../../shared/utility';
 import { Form as PlanForm } from 'semantic-ui-react';
 import Aux from '../../hoc/auxiliary/auxiliary';
 import { updateObject } from '../../shared/utility';
+import { default as SegmentForm } from '../../components/segment/segment';
 
 const Edit = (props) => {
-  const { onGetPlan, onGetTeams, onUpdatePlan } = props;
+  const { onGetPlan, onGetTeams, onUpdatePlan, onOpenModal } = props;
   const [plan, setPlan] = useState({
+    id: '',
     name: '',
+    active: true,
+    deductionMPR: null,
+    inductionMPR: null,
     actualMPR: 0.0,
     minimumScope: 0.0,
-    teamId: 0,
-    team: {},
+    created: '',
+    teamId: '',
+    team: {
+      id: '',
+      name: '',
+    },
     deduction: {
+      id: '',
       annualWorkingDay: 0.0,
       monthlyWorkingDay: 0.0,
       dailyVisit: 0.0,
@@ -34,6 +44,18 @@ const Edit = (props) => {
       monthlyTargetMPR: 0.0,
       targetedTotalPhysician: 0.0,
       targetedTotalVisit: 0.0,
+      averageFrequency: 0.0,
+      deductionDetails: [
+        {
+          segments: [],
+        },
+      ],
+    },
+    induction: {
+      id: '',
+      geographicRatio: null,
+      physicianRatio: null,
+      inductionDetails: [],
     },
   });
   useEffect(() => {
@@ -88,7 +110,16 @@ const Edit = (props) => {
       setPlan(updatedPlan);
     }
   };
-
+  const openSegmentModal = (event, deductionDetailId) => {
+    event.preventDefault();
+    console.log(deductionDetailId);
+    onOpenModal(
+      <SegmentForm addSegmentToDeductionDetail={addSegmentToDeductionDetail} />
+    );
+  };
+  const addSegmentToDeductionDetail = (data) => {
+    const deductionDetail = plan.deductionDetails.fin;
+  };
   const panes = [
     {
       menuItem: 'Tümdengelim',
@@ -198,7 +229,12 @@ const Edit = (props) => {
                               </Table.Cell>
                             ))}
                             <Table.Cell width={1}>
-                              <Button icon='add' />
+                              <Button
+                                icon='add'
+                                onClick={(event) =>
+                                  openSegmentModal(event, dd.id)
+                                }
+                              />
                             </Table.Cell>
                           </Table.Row>
                         </Table.Body>
@@ -314,6 +350,7 @@ const mapDispatchToProps = (dispatch) => {
     onGetCities: () => dispatch(actions.getCities()),
     onGetDepartments: () => dispatch(actions.getDepartments()),
     onGetPlan: (id) => dispatch(actions.getPlan(id)),
+    onOpenModal: (body) => dispatch(actions.openModal(body)),
   };
 };
 

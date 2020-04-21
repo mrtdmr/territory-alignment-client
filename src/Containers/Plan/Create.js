@@ -19,7 +19,6 @@ const Form = (props) => {
     markets: [],
     cities: [],
     departments: [],
-    segments: [],
   });
 
   const {

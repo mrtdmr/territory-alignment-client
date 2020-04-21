@@ -10,6 +10,7 @@ import teamReducer from './store/reducers/team';
 import marketReducer from './store/reducers/market';
 import planReducer from './store/reducers/plan';
 import cityReducer from './store/reducers/city';
+import modalReducer from './store/reducers/modal';
 import departmentReducer from './store/reducers/department';
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
@@ -28,6 +29,7 @@ const rootReducer = combineReducers({
   plan: planReducer,
   city: cityReducer,
   department: departmentReducer,
+  modal: modalReducer,
 });
 const store = createStore(
   rootReducer,
