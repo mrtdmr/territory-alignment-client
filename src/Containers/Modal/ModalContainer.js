@@ -1,18 +1,13 @@
 import React from 'react';
-import { Modal, Button } from 'semantic-ui-react';
+import { Modal } from 'semantic-ui-react';
 import * as actions from '../../store/actions/index';
 import { connect } from 'react-redux';
 
 const ModalContainer = (props) => {
-  const { open, body, onCloseModal } = props;
+  const { open, body } = props;
   return (
     <Modal open={open} closeOnDimmerClick={false} size='mini'>
       <Modal.Content>{body}</Modal.Content>
-      <Modal.Actions>
-        <Button onClick={onCloseModal} negative>
-          Cancel
-        </Button>
-      </Modal.Actions>
     </Modal>
   );
 };

@@ -4,22 +4,17 @@ import { connect } from 'react-redux';
 import { default as PlanListPlaceHolder } from '../../components/plan/listPlaceHolder';
 import {
   Segment,
-  Dropdown,
   Tab,
-  Grid,
   Table,
-  TableHeader,
   Button,
-  Container,
 } from 'semantic-ui-react';
-import { formatDate } from '../../shared/utility';
 import { Form as PlanForm } from 'semantic-ui-react';
 import Aux from '../../hoc/auxiliary/auxiliary';
 import { updateObject } from '../../shared/utility';
-import { default as SegmentForm } from '../../components/segment/segment';
+import { default as SegmentForm } from '../Segment/Create';
 
-const Edit = (props) => {
-  const { onGetPlan, onGetTeams, onUpdatePlan, onOpenModal } = props;
+const Update = (props) => {
+  const { onGetPlan, onGetTeams, onUpdatePlan, onOpenModal, onCloseModal } = props;
   const [plan, setPlan] = useState({
     id: '',
     name: '',
@@ -58,6 +53,7 @@ const Edit = (props) => {
       inductionDetails: [],
     },
   });
+
   useEffect(() => {
     if (props.match.params.id)
       onGetPlan(props.match.params.id).then((res) => {
@@ -65,19 +61,24 @@ const Edit = (props) => {
       });
     onGetTeams();
   }, [onGetPlan, props.match.params.id, onGetTeams]);
+
   const teamOptions = props.teams
     ? props.teams.map((t) => ({
-        key: t.id,
-        text: t.name,
-        value: t.id,
-      }))
+      key: t.id,
+      text: t.name,
+      value: t.id,
+    }))
     : null;
+
   const planItemChangedHandler = (event, input) => {
     const updatedPlan = updateObject(plan, {
       [input.name]: input.value,
     });
     setPlan(updatedPlan);
   };
+
+
+
   const deductionChangedHandler = (event, input) => {
     if (input.name === 'annualWorkingDay') {
       const monthlyWorkingDay = Math.ceil(input.value / 12);
@@ -114,11 +115,15 @@ const Edit = (props) => {
     event.preventDefault();
     console.log(deductionDetailId);
     onOpenModal(
-      <SegmentForm addSegmentToDeductionDetail={addSegmentToDeductionDetail} />
+      <SegmentForm close={onCloseModal} add={addSegmentToDeductionDetail} deductionDetailId={deductionDetailId} />
     );
   };
-  const addSegmentToDeductionDetail = (data) => {
-    const deductionDetail = plan.deductionDetails.fin;
+  const addSegmentToDeductionDetail = (e, data) => {
+    const deductionDetail = plan.deduction.deductionDetails.find(dd=>dd.id===data.deductionDetailId);
+    deductionDetail.segments.push(data);
+    //const updatedPlan = updateObject(plan,{deduction:updateObject(plan.deduction,{deductionDetails:})})
+    console.log(plan);
+    onCloseModal();
   };
   const panes = [
     {
@@ -224,7 +229,7 @@ const Edit = (props) => {
                                   size='mini'
                                   fluid
                                   name='rate'
-                                  value={s.rate.toFixed(2)}
+                                  value={parseFloat(s.rate).toFixed(2)}
                                 />
                               </Table.Cell>
                             ))}
@@ -260,70 +265,70 @@ const Edit = (props) => {
   let planUi = props.planLoading ? (
     <PlanListPlaceHolder />
   ) : (
-    <PlanForm onSubmit={updatePlanHandler}>
-      <Segment>
-        <PlanForm.Group widths='equal'>
-          <PlanForm.Input
-            label='Plan Adı'
-            fluid
-            name='name'
-            placeholder='Ad'
-            value={plan.name}
-            onChange={planItemChangedHandler}
+      <PlanForm onSubmit={updatePlanHandler}>
+        <Segment>
+          <PlanForm.Group widths='equal'>
+            <PlanForm.Input
+              label='Plan Adı'
+              fluid
+              name='name'
+              placeholder='Ad'
+              value={plan.name}
+              onChange={planItemChangedHandler}
+            />
+            <PlanForm.Input
+              label='Fiili TTT'
+              fluid
+              name='actualMPR'
+              placeholder='Fiili TTT'
+              value={plan.actualMPR}
+              onChange={planItemChangedHandler}
+            />
+          </PlanForm.Group>
+          <PlanForm.Group widths='equal'>
+            <PlanForm.Input
+              label='Minimum Kapsam'
+              fluid
+              name='minimumScope'
+              placeholder='Minimum Kapsam'
+              value={plan.minimumScope}
+              onChange={planItemChangedHandler}
+            />
+            <PlanForm.Dropdown
+              label='Takım'
+              fluid
+              name='teamId'
+              placeholder='Takım Seçiniz...'
+              search
+              selection
+              options={teamOptions}
+              value={plan.teamId}
+              onChange={planItemChangedHandler}
+            />
+          </PlanForm.Group>
+        </Segment>
+        <Segment>
+          <Tab panes={panes} />
+        </Segment>
+        <Segment clearing>
+          <Button
+            floated='right'
+            positive
+            type='submit'
+            content='Kaydet'
+            loading={props.submitting}
           />
-          <PlanForm.Input
-            label='Fiili TTT'
-            fluid
-            name='actualMPR'
-            placeholder='Fiili TTT'
-            value={plan.actualMPR}
-            onChange={planItemChangedHandler}
+          <Button
+            //              onClick={() => props.history.goBack()}
+            onClick={() => props.history.push('/plans')}
+            basic
+            color='grey'
+            content='Vazgeç'
+            floated='right'
           />
-        </PlanForm.Group>
-        <PlanForm.Group widths='equal'>
-          <PlanForm.Input
-            label='Minimum Kapsam'
-            fluid
-            name='minimumScope'
-            placeholder='Minimum Kapsam'
-            value={plan.minimumScope}
-            onChange={planItemChangedHandler}
-          />
-          <PlanForm.Dropdown
-            label='Takım'
-            fluid
-            name='teamId'
-            placeholder='Takım Seçiniz...'
-            search
-            selection
-            options={teamOptions}
-            value={plan.teamId}
-            onChange={planItemChangedHandler}
-          />
-        </PlanForm.Group>
-      </Segment>
-      <Segment>
-        <Tab panes={panes} />
-      </Segment>
-      <Segment clearing>
-        <Button
-          floated='right'
-          positive
-          type='submit'
-          content='Kaydet'
-          loading={props.submitting}
-        />
-        <Button
-          //              onClick={() => props.history.goBack()}
-          onClick={() => props.history.push('/plans')}
-          basic
-          color='grey'
-          content='Vazgeç'
-          floated='right'
-        />
-      </Segment>
-    </PlanForm>
-  );
+        </Segment>
+      </PlanForm>
+    );
   return <Aux>{planUi}</Aux>;
 };
 const mapStateToProps = (state) => {
@@ -339,6 +344,8 @@ const mapStateToProps = (state) => {
     submitting: state.plan.submitting,
     planLoading: state.plan.loading,
     plan: state.plan.plan,
+    open: state.modal.open,
+    body: state.modal.body,
   };
 };
 
@@ -351,7 +358,8 @@ const mapDispatchToProps = (dispatch) => {
     onGetDepartments: () => dispatch(actions.getDepartments()),
     onGetPlan: (id) => dispatch(actions.getPlan(id)),
     onOpenModal: (body) => dispatch(actions.openModal(body)),
+    onCloseModal: () => dispatch(actions.closeModal()),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Edit);
+export default connect(mapStateToProps, mapDispatchToProps)(Update);
