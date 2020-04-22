@@ -2,19 +2,20 @@ import React, { useEffect, useState } from 'react';
 import * as actions from '../../store/actions/index';
 import { connect } from 'react-redux';
 import { default as PlanListPlaceHolder } from '../../components/plan/listPlaceHolder';
-import {
-  Segment,
-  Tab,
-  Table,
-  Button,
-} from 'semantic-ui-react';
-import { Form as PlanForm } from 'semantic-ui-react';
+import { Segment, Tab, Table, Button } from 'semantic-ui-react';
+import { Form } from 'semantic-ui-react';
 import Aux from '../../hoc/auxiliary/auxiliary';
 import { updateObject } from '../../shared/utility';
 import { default as SegmentForm } from '../Segment/Create';
 
 const Update = (props) => {
-  const { onGetPlan, onGetTeams, onUpdatePlan, onOpenModal, onCloseModal } = props;
+  const {
+    onGetPlan,
+    onGetTeams,
+    onUpdatePlan,
+    onOpenModal,
+    onCloseModal,
+  } = props;
   const [plan, setPlan] = useState({
     id: '',
     name: '',
@@ -64,10 +65,10 @@ const Update = (props) => {
 
   const teamOptions = props.teams
     ? props.teams.map((t) => ({
-      key: t.id,
-      text: t.name,
-      value: t.id,
-    }))
+        key: t.id,
+        text: t.name,
+        value: t.id,
+      }))
     : null;
 
   const planItemChangedHandler = (event, input) => {
@@ -77,7 +78,21 @@ const Update = (props) => {
     setPlan(updatedPlan);
   };
 
-
+  const scopeChangedHandler = (event, input) => {
+    const deductionDetail = plan.deduction.deductionDetails.find(
+      (dd) => dd.id === input.id
+    );
+    deductionDetail.scope = input.value;
+    //console.log(deductionDetail);
+    /*const updatedPlan = updateObject(
+      plan,
+      updateObject(deductionDetail, { scope: input.value })
+    );*/
+    console.log(plan);
+    //console.log(updatedPlan);
+    //setPlan(updatedPlan);
+    //console.log(plan);
+  };
 
   const deductionChangedHandler = (event, input) => {
     if (input.name === 'annualWorkingDay') {
@@ -115,14 +130,19 @@ const Update = (props) => {
     event.preventDefault();
     console.log(deductionDetailId);
     onOpenModal(
-      <SegmentForm close={onCloseModal} add={addSegmentToDeductionDetail} deductionDetailId={deductionDetailId} />
+      <SegmentForm
+        close={onCloseModal}
+        add={addSegmentToDeductionDetail}
+        deductionDetailId={deductionDetailId}
+      />
     );
   };
   const addSegmentToDeductionDetail = (e, data) => {
-    const deductionDetail = plan.deduction.deductionDetails.find(dd=>dd.id===data.deductionDetailId);
+    const deductionDetail = plan.deduction.deductionDetails.find(
+      (dd) => dd.id === data.deductionDetailId
+    );
     deductionDetail.segments.push(data);
     //const updatedPlan = updateObject(plan,{deduction:updateObject(plan.deduction,{deductionDetails:})})
-    console.log(plan);
     onCloseModal();
   };
   const panes = [
@@ -130,8 +150,8 @@ const Update = (props) => {
       menuItem: 'Tümdengelim',
       render: () => (
         <Tab.Pane>
-          <PlanForm.Group widths='equal'>
-            <PlanForm.Input
+          <Form.Group widths='equal'>
+            <Form.Input
               label='Yıllık Net iş Günü'
               fluid
               name='annualWorkingDay'
@@ -139,14 +159,14 @@ const Update = (props) => {
               value={plan.deduction.annualWorkingDay}
               onChange={deductionChangedHandler}
             />
-            <PlanForm.Input
+            <Form.Input
               label='Aylık Net iş Günü'
               fluid
               name='monthlyWorkingDay'
               placeholder='Aylık Net iş Günü'
               value={plan.deduction.monthlyWorkingDay}
             />
-            <PlanForm.Input
+            <Form.Input
               label='Günlük Ziyaret'
               fluid
               name='dailyVisit'
@@ -154,45 +174,45 @@ const Update = (props) => {
               value={plan.deduction.dailyVisit}
               onChange={deductionChangedHandler}
             />
-            <PlanForm.Input
+            <Form.Input
               label='Aylık Ziyaret Kapasitesi'
               fluid
               name='monthlyVisitCapacity'
               placeholder='Aylık Net iş Günü'
               value={plan.deduction.monthlyVisitCapacity}
             />
-          </PlanForm.Group>
-          <PlanForm.Group widths='equal'>
-            <PlanForm.Input
+          </Form.Group>
+          <Form.Group widths='equal'>
+            <Form.Input
               label='Aylık Hedef  Ziyaret Frekansı/TTT'
               fluid
               name='monthlyTargetVisitFrequency'
               placeholder='Aylık Hedef  Ziyaret Frekansı/TTT'
               value={plan.deduction.monthlyTargetVisitFrequency}
             />
-            <PlanForm.Input
+            <Form.Input
               label='Aylık Hedeflenen Tekil/TTT'
               fluid
               name='monthlyTargetMPR'
               placeholder='Aylık Hedeflenen Tekil/TTT'
               value={plan.deduction.monthlyTargetMPR}
             />
-            <PlanForm.Input
+            <Form.Input
               label='Hedeflenen Toplam/Takım'
               fluid
               name='targetedTotalPhysician'
               placeholder='Hedeflenen Toplam/Takım'
               value={plan.deduction.targetedTotalPhysician}
             />
-            <PlanForm.Input
+            <Form.Input
               label='Hedeflenen Toplam  Ziyaret/Takım'
               fluid
               name='targetedTotalVisit'
               placeholder='Hedeflenen Toplam  Ziyaret/Takım'
               value={plan.deduction.targetedTotalVisit}
             />
-          </PlanForm.Group>
-          <PlanForm.Group>
+          </Form.Group>
+          <Form.Group>
             <Table striped>
               <Table.Header>
                 <Table.Row>
@@ -212,10 +232,11 @@ const Update = (props) => {
                       {dd.physicianUniverseCovered.toFixed(2)}
                     </Table.Cell>
                     <Table.Cell>
-                      <PlanForm.Input
+                      <Form.Input
                         fluid
-                        name='monthlyWorkingDay'
+                        name='scope'
                         value={dd.scope.toFixed(2)}
+                        onChange={(e) => scopeChangedHandler(e, dd)}
                       />
                     </Table.Cell>
                     <Table.Cell>
@@ -225,7 +246,7 @@ const Update = (props) => {
                             {dd.segments.map((s) => (
                               <Table.Cell key={s.id}>
                                 {' '}
-                                <PlanForm.Input
+                                <Form.Input
                                   size='mini'
                                   fluid
                                   name='rate'
@@ -236,9 +257,7 @@ const Update = (props) => {
                             <Table.Cell width={1}>
                               <Button
                                 icon='add'
-                                onClick={(event) =>
-                                  openSegmentModal(event, dd.id)
-                                }
+                                onClick={(e) => openSegmentModal(e, dd.id)}
                               />
                             </Table.Cell>
                           </Table.Row>
@@ -249,7 +268,7 @@ const Update = (props) => {
                 ))}
               </Table.Body>
             </Table>
-          </PlanForm.Group>
+          </Form.Group>
         </Tab.Pane>
       ),
     },
@@ -265,70 +284,70 @@ const Update = (props) => {
   let planUi = props.planLoading ? (
     <PlanListPlaceHolder />
   ) : (
-      <PlanForm onSubmit={updatePlanHandler}>
-        <Segment>
-          <PlanForm.Group widths='equal'>
-            <PlanForm.Input
-              label='Plan Adı'
-              fluid
-              name='name'
-              placeholder='Ad'
-              value={plan.name}
-              onChange={planItemChangedHandler}
-            />
-            <PlanForm.Input
-              label='Fiili TTT'
-              fluid
-              name='actualMPR'
-              placeholder='Fiili TTT'
-              value={plan.actualMPR}
-              onChange={planItemChangedHandler}
-            />
-          </PlanForm.Group>
-          <PlanForm.Group widths='equal'>
-            <PlanForm.Input
-              label='Minimum Kapsam'
-              fluid
-              name='minimumScope'
-              placeholder='Minimum Kapsam'
-              value={plan.minimumScope}
-              onChange={planItemChangedHandler}
-            />
-            <PlanForm.Dropdown
-              label='Takım'
-              fluid
-              name='teamId'
-              placeholder='Takım Seçiniz...'
-              search
-              selection
-              options={teamOptions}
-              value={plan.teamId}
-              onChange={planItemChangedHandler}
-            />
-          </PlanForm.Group>
-        </Segment>
-        <Segment>
-          <Tab panes={panes} />
-        </Segment>
-        <Segment clearing>
-          <Button
-            floated='right'
-            positive
-            type='submit'
-            content='Kaydet'
-            loading={props.submitting}
+    <Form onSubmit={updatePlanHandler}>
+      <Segment>
+        <Form.Group widths='equal'>
+          <Form.Input
+            label='Plan Adı'
+            fluid
+            name='name'
+            placeholder='Ad'
+            value={plan.name}
+            onChange={planItemChangedHandler}
           />
-          <Button
-            //              onClick={() => props.history.goBack()}
-            onClick={() => props.history.push('/plans')}
-            basic
-            color='grey'
-            content='Vazgeç'
-            floated='right'
+          <Form.Input
+            label='Fiili TTT'
+            fluid
+            name='actualMPR'
+            placeholder='Fiili TTT'
+            value={plan.actualMPR}
+            onChange={planItemChangedHandler}
           />
-        </Segment>
-      </PlanForm>
-    );
+        </Form.Group>
+        <Form.Group widths='equal'>
+          <Form.Input
+            label='Minimum Kapsam'
+            fluid
+            name='minimumScope'
+            placeholder='Minimum Kapsam'
+            value={plan.minimumScope}
+            onChange={planItemChangedHandler}
+          />
+          <Form.Dropdown
+            label='Takım'
+            fluid
+            name='teamId'
+            placeholder='Takım Seçiniz...'
+            search
+            selection
+            options={teamOptions}
+            value={plan.teamId}
+            onChange={planItemChangedHandler}
+          />
+        </Form.Group>
+      </Segment>
+      <Segment>
+        <Tab panes={panes} />
+      </Segment>
+      <Segment clearing>
+        <Button
+          floated='right'
+          positive
+          type='submit'
+          content='Kaydet'
+          loading={props.submitting}
+        />
+        <Button
+          //              onClick={() => props.history.goBack()}
+          onClick={() => props.history.push('/plans')}
+          basic
+          color='grey'
+          content='Vazgeç'
+          floated='right'
+        />
+      </Segment>
+    </Form>
+  );
   return <Aux>{planUi}</Aux>;
 };
 const mapStateToProps = (state) => {

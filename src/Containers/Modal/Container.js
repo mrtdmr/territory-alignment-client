@@ -3,7 +3,7 @@ import { Modal } from 'semantic-ui-react';
 import * as actions from '../../store/actions/index';
 import { connect } from 'react-redux';
 
-const ModalContainer = (props) => {
+const Container = (props) => {
   const { open, body } = props;
   return (
     <Modal open={open} closeOnDimmerClick={false} size='mini'>
@@ -25,4 +25,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ModalContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(Container);

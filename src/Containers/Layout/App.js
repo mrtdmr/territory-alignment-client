@@ -10,7 +10,7 @@ import { default as CreatePlanForm } from '../Plan/Create';
 import { default as PlanListForm } from '../Plan/List';
 import { default as UpdatePlanForm } from '../Plan/Update';
 import Home from '../Home/Home';
-import ModalContainer from '../Modal/ModalContainer';
+import ModalContainer from '../Modal/Container';
 
 const App = (props) => {
   return (

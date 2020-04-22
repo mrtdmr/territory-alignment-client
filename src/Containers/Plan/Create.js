@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import * as actions from '../../store/actions/index';
 import { connect } from 'react-redux';
 import { Segment, Button, Dropdown, Grid, List } from 'semantic-ui-react';
-import { Form as PlanForm } from 'semantic-ui-react';
+import { Form } from 'semantic-ui-react';
 import { updateObject } from '../../shared/utility';
 import Market from '../../components/market/market';
 import City from '../../components/city/city';
 import Department from '../../components/department/department';
 import { default as Loading } from '../../components/loading/loading';
 
-const Form = (props) => {
+const Create = (props) => {
   const [plan, setPlan] = useState({
     name: '',
     active: true,
@@ -181,34 +181,34 @@ const Form = (props) => {
     <Loading content='Şehirler yükleniyor...' />
   ) : null;
   return (
-    <PlanForm onSubmit={createPlanHandler}>
+    <Form onSubmit={createPlanHandler}>
       <Segment clearing>
-        <PlanForm.Field>
+        <Form.Field>
           <label>Plan Adı</label>
-          <PlanForm.Input
+          <Form.Input
             name='name'
             placeholder='Ad'
             onChange={inputChangedHandler}
           />
-        </PlanForm.Field>
-        <PlanForm.Field>
+        </Form.Field>
+        <Form.Field>
           <label>Fiili TTT</label>
-          <PlanForm.Input
+          <Form.Input
             name='actualMPR'
             placeholder='Fiili TTT'
             onChange={inputChangedHandler}
           />
-        </PlanForm.Field>
-        <PlanForm.Field>
+        </Form.Field>
+        <Form.Field>
           <label>Minimum Kapsam</label>
-          <PlanForm.Input
+          <Form.Input
             name='minimumScope'
             onChange={inputChangedHandler}
             placeholder='Minimum Kapsam'
           />
-        </PlanForm.Field>
+        </Form.Field>
 
-        <PlanForm.Field>
+        <Form.Field>
           <label>Takım</label>
           <Dropdown
             name='teamId'
@@ -218,7 +218,7 @@ const Form = (props) => {
             options={teamOptions}
             onChange={inputChangedHandler}
           />
-        </PlanForm.Field>
+        </Form.Field>
       </Segment>
 
       <Segment clearing>
@@ -483,7 +483,7 @@ const Form = (props) => {
           floated='right'
         />
       </Segment>
-    </PlanForm>
+    </Form>
   );
 };
 
@@ -511,4 +511,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Form);
+export default connect(mapStateToProps, mapDispatchToProps)(Create);
