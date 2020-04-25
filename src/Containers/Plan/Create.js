@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import * as actions from '../../store/actions/index';
 import { connect } from 'react-redux';
-import { Segment, Button, Dropdown, Grid, List } from 'semantic-ui-react';
+import {
+  Segment,
+  Button,
+  Dropdown,
+  Grid,
+  List,
+  Container,
+} from 'semantic-ui-react';
 import { Form } from 'semantic-ui-react';
 import { updateObject } from '../../shared/utility';
 import Market from '../../components/market/market';
@@ -181,309 +188,315 @@ const Create = (props) => {
     <Loading content='Şehirler yükleniyor...' />
   ) : null;
   return (
-    <Form onSubmit={createPlanHandler}>
-      <Segment clearing>
-        <Form.Field>
-          <label>Plan Adı</label>
-          <Form.Input
-            name='name'
-            placeholder='Ad'
-            onChange={inputChangedHandler}
+    <Container style={{ marginTop: '7em' }}>
+      <Form onSubmit={createPlanHandler}>
+        <Segment clearing>
+          <Form.Field>
+            <label>Plan Adı</label>
+            <Form.Input
+              name='name'
+              placeholder='Ad'
+              onChange={inputChangedHandler}
+            />
+          </Form.Field>
+          <Form.Field>
+            <label>Fiili TTT</label>
+            <Form.Input
+              name='actualMPR'
+              placeholder='Fiili TTT'
+              onChange={inputChangedHandler}
+            />
+          </Form.Field>
+          <Form.Field>
+            <label>Minimum Kapsam</label>
+            <Form.Input
+              name='minimumScope'
+              onChange={inputChangedHandler}
+              placeholder='Minimum Kapsam'
+            />
+          </Form.Field>
+
+          <Form.Field>
+            <label>Takım</label>
+            <Dropdown
+              name='teamId'
+              placeholder='Takım Seçiniz...'
+              search
+              selection
+              options={teamOptions}
+              onChange={inputChangedHandler}
+            />
+          </Form.Field>
+        </Segment>
+
+        <Segment clearing>
+          <Grid>
+            <Grid.Column width={8}>
+              <Segment clearing>
+                <label>Plana eklemek istediğiniz pazarı seçiniz</label>
+                <Button
+                  floated='right'
+                  color='green'
+                  onClick={(event) => addAllMarketsToPlan(event)}
+                >
+                  Tümünü Ekle
+                </Button>
+              </Segment>
+              <Segment clearing>
+                {marketsLoading}
+                <List
+                  style={{ height: '250px', overflowY: 'scroll' }}
+                  animated
+                  divided
+                  relaxed
+                >
+                  {marketsNotSelected
+                    ? marketsNotSelected.map((mns) => (
+                        <List.Item key={mns.id}>
+                          <List.Content floated='right'>
+                            <Button
+                              onClick={(event) => addMarketToPlan(event, mns)}
+                            >
+                              Ekle
+                            </Button>
+                          </List.Content>
+                          <List.Content>
+                            <Market name={mns.name}></Market>
+                          </List.Content>
+                        </List.Item>
+                      ))
+                    : null}
+                </List>
+              </Segment>
+            </Grid.Column>
+            <Grid.Column width={8}>
+              <Segment clearing>
+                <label>Plandan çıkarmak istediğiniz pazarı seçiniz</label>
+                <Button
+                  floated='right'
+                  color='red'
+                  onClick={(event) => removeAllMarketsFromPlan(event)}
+                >
+                  Tümünü Çıkar
+                </Button>
+              </Segment>
+              <Segment clearing>
+                <List
+                  style={{ height: '250px', overflowY: 'scroll' }}
+                  animated
+                  divided
+                  relaxed
+                >
+                  {marketsSelected
+                    ? marketsSelected.map((ms) => (
+                        <List.Item key={ms.id}>
+                          <List.Content floated='right'>
+                            <Button
+                              color='red'
+                              onClick={(event) =>
+                                removeMarketFromPlan(event, ms)
+                              }
+                            >
+                              Çıkar
+                            </Button>
+                          </List.Content>
+                          <List.Content>
+                            <Market name={ms.name}></Market>
+                          </List.Content>
+                        </List.Item>
+                      ))
+                    : null}
+                </List>
+              </Segment>
+            </Grid.Column>
+          </Grid>
+        </Segment>
+
+        <Segment clearing>
+          <Grid>
+            <Grid.Column width={8}>
+              <Segment clearing>
+                <label>Plana eklemek istediğiniz uzmanlığı seçiniz</label>
+                <Button
+                  floated='right'
+                  color='green'
+                  onClick={(event) => addAllDepartmentsToPlan(event)}
+                >
+                  Tümünü Ekle
+                </Button>
+              </Segment>
+              <Segment clearing>
+                {departmentsLoading}
+                <List
+                  style={{ height: '250px', overflowY: 'scroll' }}
+                  animated
+                  divided
+                  relaxed
+                >
+                  {departmentsNotSelected
+                    ? departmentsNotSelected.map((dns) => (
+                        <List.Item key={dns.id}>
+                          <List.Content floated='right'>
+                            <Button
+                              onClick={(event) =>
+                                addDepartmentToPlan(event, dns)
+                              }
+                            >
+                              Ekle
+                            </Button>
+                          </List.Content>
+                          <List.Content>
+                            <Department name={dns.name}></Department>
+                          </List.Content>
+                        </List.Item>
+                      ))
+                    : null}
+                </List>
+              </Segment>
+            </Grid.Column>
+            <Grid.Column width={8}>
+              <Segment clearing>
+                <label>Plandan çıkarmak istediğiniz uzmanlığı seçiniz</label>
+                <Button
+                  floated='right'
+                  color='red'
+                  onClick={(event) => removeAllDepartmentsFromPlan(event)}
+                >
+                  Tümünü Çıkar
+                </Button>
+              </Segment>
+              <Segment clearing>
+                <List
+                  style={{ height: '250px', overflowY: 'scroll' }}
+                  animated
+                  divided
+                  relaxed
+                >
+                  {departmentsSelected
+                    ? departmentsSelected.map((ds) => (
+                        <List.Item key={ds.id}>
+                          <List.Content floated='right'>
+                            <Button
+                              color='red'
+                              onClick={(event) =>
+                                removeDepartmentFromPlan(event, ds)
+                              }
+                            >
+                              Çıkar
+                            </Button>
+                          </List.Content>
+                          <List.Content>
+                            <Department name={ds.name}></Department>
+                          </List.Content>
+                        </List.Item>
+                      ))
+                    : null}
+                </List>
+              </Segment>
+            </Grid.Column>
+          </Grid>
+        </Segment>
+
+        <Segment clearing>
+          <Grid>
+            <Grid.Column width={8}>
+              <Segment clearing>
+                <label>Plana eklemek istediğiniz şehri seçiniz</label>
+                <Button
+                  floated='right'
+                  color='green'
+                  onClick={(event) => addAllCitiesToPlan(event)}
+                >
+                  Tümünü Ekle
+                </Button>
+              </Segment>
+              <Segment clearing>
+                {citiesLoading}
+                <List
+                  style={{ height: '250px', overflowY: 'scroll' }}
+                  animated
+                  divided
+                  relaxed
+                >
+                  {citiesNotSelected
+                    ? citiesNotSelected.map((cns) => (
+                        <List.Item key={cns.id}>
+                          <List.Content floated='right'>
+                            <Button
+                              onClick={(event) => addCityToPlan(event, cns)}
+                            >
+                              Ekle
+                            </Button>
+                          </List.Content>
+                          <List.Content>
+                            <City name={cns.name}></City>
+                          </List.Content>
+                        </List.Item>
+                      ))
+                    : null}
+                </List>
+              </Segment>
+            </Grid.Column>
+            <Grid.Column width={8}>
+              <Segment clearing>
+                <label>Plandan çıkarmak istediğiniz şehri seçiniz</label>
+                <Button
+                  floated='right'
+                  color='red'
+                  onClick={(event) => removeAllCitiesFromPlan(event)}
+                >
+                  Tümünü Çıkar
+                </Button>
+              </Segment>
+              <Segment clearing>
+                <List
+                  style={{ height: '250px', overflowY: 'scroll' }}
+                  divided
+                  relaxed
+                  animated
+                >
+                  {citiesSelected
+                    ? citiesSelected.map((cs) => (
+                        <List.Item key={cs.id}>
+                          <List.Content floated='right'>
+                            <Button
+                              color='red'
+                              onClick={(event) => removeCityFromPlan(event, cs)}
+                            >
+                              Çıkar
+                            </Button>
+                          </List.Content>
+                          <List.Content>
+                            <City name={cs.name}></City>
+                          </List.Content>
+                        </List.Item>
+                      ))
+                    : null}
+                </List>
+              </Segment>
+            </Grid.Column>
+          </Grid>
+        </Segment>
+
+        <Segment clearing>
+          <Button
+            floated='right'
+            positive
+            type='submit'
+            content='Kaydet'
+            loading={props.submitting}
           />
-        </Form.Field>
-        <Form.Field>
-          <label>Fiili TTT</label>
-          <Form.Input
-            name='actualMPR'
-            placeholder='Fiili TTT'
-            onChange={inputChangedHandler}
+          <Button
+            //              onClick={() => props.history.goBack()}
+            onClick={() => props.history.push('/plans')}
+            basic
+            color='grey'
+            content='Vazgeç'
+            floated='right'
           />
-        </Form.Field>
-        <Form.Field>
-          <label>Minimum Kapsam</label>
-          <Form.Input
-            name='minimumScope'
-            onChange={inputChangedHandler}
-            placeholder='Minimum Kapsam'
-          />
-        </Form.Field>
-
-        <Form.Field>
-          <label>Takım</label>
-          <Dropdown
-            name='teamId'
-            placeholder='Takım Seçiniz...'
-            search
-            selection
-            options={teamOptions}
-            onChange={inputChangedHandler}
-          />
-        </Form.Field>
-      </Segment>
-
-      <Segment clearing>
-        <Grid>
-          <Grid.Column width={8}>
-            <Segment clearing>
-              <label>Plana eklemek istediğiniz pazarı seçiniz</label>
-              <Button
-                floated='right'
-                color='green'
-                onClick={(event) => addAllMarketsToPlan(event)}
-              >
-                Tümünü Ekle
-              </Button>
-            </Segment>
-            <Segment clearing>
-              {marketsLoading}
-              <List
-                style={{ height: '250px', overflowY: 'scroll' }}
-                animated
-                divided
-                relaxed
-              >
-                {marketsNotSelected
-                  ? marketsNotSelected.map((mns) => (
-                      <List.Item key={mns.id}>
-                        <List.Content floated='right'>
-                          <Button
-                            onClick={(event) => addMarketToPlan(event, mns)}
-                          >
-                            Ekle
-                          </Button>
-                        </List.Content>
-                        <List.Content>
-                          <Market name={mns.name}></Market>
-                        </List.Content>
-                      </List.Item>
-                    ))
-                  : null}
-              </List>
-            </Segment>
-          </Grid.Column>
-          <Grid.Column width={8}>
-            <Segment clearing>
-              <label>Plandan çıkarmak istediğiniz pazarı seçiniz</label>
-              <Button
-                floated='right'
-                color='red'
-                onClick={(event) => removeAllMarketsFromPlan(event)}
-              >
-                Tümünü Çıkar
-              </Button>
-            </Segment>
-            <Segment clearing>
-              <List
-                style={{ height: '250px', overflowY: 'scroll' }}
-                animated
-                divided
-                relaxed
-              >
-                {marketsSelected
-                  ? marketsSelected.map((ms) => (
-                      <List.Item key={ms.id}>
-                        <List.Content floated='right'>
-                          <Button
-                            color='red'
-                            onClick={(event) => removeMarketFromPlan(event, ms)}
-                          >
-                            Çıkar
-                          </Button>
-                        </List.Content>
-                        <List.Content>
-                          <Market name={ms.name}></Market>
-                        </List.Content>
-                      </List.Item>
-                    ))
-                  : null}
-              </List>
-            </Segment>
-          </Grid.Column>
-        </Grid>
-      </Segment>
-
-      <Segment clearing>
-        <Grid>
-          <Grid.Column width={8}>
-            <Segment clearing>
-              <label>Plana eklemek istediğiniz uzmanlığı seçiniz</label>
-              <Button
-                floated='right'
-                color='green'
-                onClick={(event) => addAllDepartmentsToPlan(event)}
-              >
-                Tümünü Ekle
-              </Button>
-            </Segment>
-            <Segment clearing>
-              {departmentsLoading}
-              <List
-                style={{ height: '250px', overflowY: 'scroll' }}
-                animated
-                divided
-                relaxed
-              >
-                {departmentsNotSelected
-                  ? departmentsNotSelected.map((dns) => (
-                      <List.Item key={dns.id}>
-                        <List.Content floated='right'>
-                          <Button
-                            onClick={(event) => addDepartmentToPlan(event, dns)}
-                          >
-                            Ekle
-                          </Button>
-                        </List.Content>
-                        <List.Content>
-                          <Department name={dns.name}></Department>
-                        </List.Content>
-                      </List.Item>
-                    ))
-                  : null}
-              </List>
-            </Segment>
-          </Grid.Column>
-          <Grid.Column width={8}>
-            <Segment clearing>
-              <label>Plandan çıkarmak istediğiniz uzmanlığı seçiniz</label>
-              <Button
-                floated='right'
-                color='red'
-                onClick={(event) => removeAllDepartmentsFromPlan(event)}
-              >
-                Tümünü Çıkar
-              </Button>
-            </Segment>
-            <Segment clearing>
-              <List
-                style={{ height: '250px', overflowY: 'scroll' }}
-                animated
-                divided
-                relaxed
-              >
-                {departmentsSelected
-                  ? departmentsSelected.map((ds) => (
-                      <List.Item key={ds.id}>
-                        <List.Content floated='right'>
-                          <Button
-                            color='red'
-                            onClick={(event) =>
-                              removeDepartmentFromPlan(event, ds)
-                            }
-                          >
-                            Çıkar
-                          </Button>
-                        </List.Content>
-                        <List.Content>
-                          <Department name={ds.name}></Department>
-                        </List.Content>
-                      </List.Item>
-                    ))
-                  : null}
-              </List>
-            </Segment>
-          </Grid.Column>
-        </Grid>
-      </Segment>
-
-      <Segment clearing>
-        <Grid>
-          <Grid.Column width={8}>
-            <Segment clearing>
-              <label>Plana eklemek istediğiniz şehri seçiniz</label>
-              <Button
-                floated='right'
-                color='green'
-                onClick={(event) => addAllCitiesToPlan(event)}
-              >
-                Tümünü Ekle
-              </Button>
-            </Segment>
-            <Segment clearing>
-              {citiesLoading}
-              <List
-                style={{ height: '250px', overflowY: 'scroll' }}
-                animated
-                divided
-                relaxed
-              >
-                {citiesNotSelected
-                  ? citiesNotSelected.map((cns) => (
-                      <List.Item key={cns.id}>
-                        <List.Content floated='right'>
-                          <Button
-                            onClick={(event) => addCityToPlan(event, cns)}
-                          >
-                            Ekle
-                          </Button>
-                        </List.Content>
-                        <List.Content>
-                          <City name={cns.name}></City>
-                        </List.Content>
-                      </List.Item>
-                    ))
-                  : null}
-              </List>
-            </Segment>
-          </Grid.Column>
-          <Grid.Column width={8}>
-            <Segment clearing>
-              <label>Plandan çıkarmak istediğiniz şehri seçiniz</label>
-              <Button
-                floated='right'
-                color='red'
-                onClick={(event) => removeAllCitiesFromPlan(event)}
-              >
-                Tümünü Çıkar
-              </Button>
-            </Segment>
-            <Segment clearing>
-              <List
-                style={{ height: '250px', overflowY: 'scroll' }}
-                divided
-                relaxed
-                animated
-              >
-                {citiesSelected
-                  ? citiesSelected.map((cs) => (
-                      <List.Item key={cs.id}>
-                        <List.Content floated='right'>
-                          <Button
-                            color='red'
-                            onClick={(event) => removeCityFromPlan(event, cs)}
-                          >
-                            Çıkar
-                          </Button>
-                        </List.Content>
-                        <List.Content>
-                          <City name={cs.name}></City>
-                        </List.Content>
-                      </List.Item>
-                    ))
-                  : null}
-              </List>
-            </Segment>
-          </Grid.Column>
-        </Grid>
-      </Segment>
-
-      <Segment clearing>
-        <Button
-          floated='right'
-          positive
-          type='submit'
-          content='Kaydet'
-          loading={props.submitting}
-        />
-        <Button
-          //              onClick={() => props.history.goBack()}
-          onClick={() => props.history.push('/plans')}
-          basic
-          color='grey'
-          content='Vazgeç'
-          floated='right'
-        />
-      </Segment>
-    </Form>
+        </Segment>
+      </Form>
+    </Container>
   );
 };
 
@@ -491,11 +504,8 @@ const mapStateToProps = (state) => {
   return {
     teams: state.team.teams,
     teamsLoading: state.team.loading,
-    markets: state.market.markets,
     marketsLoading: state.market.loading,
-    cities: state.city.cities,
     citiesLoading: state.city.loading,
-    departments: state.department.departments,
     departmentsLoading: state.department.loading,
     submitting: state.plan.submitting,
   };

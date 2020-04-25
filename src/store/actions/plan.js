@@ -129,6 +129,7 @@ export const updatePlan = (plan) => {
       .then((res) => {
         dispatch(updatePlanSuccess(res));
         //dispatch(history.push('/plans'));
+        history.go(0);
       })
       .catch((err) => {
         dispatch(updatePlanFail(err));

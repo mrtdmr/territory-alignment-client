@@ -2,26 +2,26 @@ import React, { useEffect, useState } from 'react';
 import * as actions from '../../store/actions/index';
 import { connect } from 'react-redux';
 import { default as PlanListPlaceHolder } from '../../components/plan/listPlaceHolder';
-import { Segment, Tab, Table, Button } from 'semantic-ui-react';
+import {
+  Segment,
+  Tab,
+  Table,
+  Button,
+  Label,
+  Container,
+} from 'semantic-ui-react';
 import { Form } from 'semantic-ui-react';
 import Aux from '../../hoc/auxiliary/auxiliary';
 import { updateObject } from '../../shared/utility';
-import { default as SegmentForm } from '../Segment/Create';
 
 const Update = (props) => {
-  const {
-    onGetPlan,
-    onGetTeams,
-    onUpdatePlan,
-    onOpenModal,
-    onCloseModal,
-  } = props;
+  const { onGetPlan, onGetTeams, onUpdatePlan } = props;
   const [plan, setPlan] = useState({
     id: '',
     name: '',
     active: true,
-    deductionMPR: null,
-    inductionMPR: null,
+    deductionMPR: 0.0,
+    inductionMPR: 0.0,
     actualMPR: 0.0,
     minimumScope: 0.0,
     created: '',
@@ -43,7 +43,25 @@ const Update = (props) => {
       averageFrequency: 0.0,
       deductionDetails: [
         {
-          segments: [],
+          id: '',
+          physicianUniverse: 0.0,
+          physicianUniverseCovered: 0.0,
+          scope: 0.0,
+          scopeCount: 0.0,
+          departmentId: '',
+          department: {
+            id: '',
+            name: '',
+          },
+          segments: [
+            {
+              id: '',
+              rate: 0.0,
+              targetCount: 0.0,
+              targetFrequency: 0.0,
+              visit: 0.0,
+            },
+          ],
         },
       ],
     },
@@ -54,7 +72,6 @@ const Update = (props) => {
       inductionDetails: [],
     },
   });
-
   useEffect(() => {
     if (props.match.params.id)
       onGetPlan(props.match.params.id).then((res) => {
@@ -62,7 +79,6 @@ const Update = (props) => {
       });
     onGetTeams();
   }, [onGetPlan, props.match.params.id, onGetTeams]);
-
   const teamOptions = props.teams
     ? props.teams.map((t) => ({
         key: t.id,
@@ -77,73 +93,157 @@ const Update = (props) => {
     });
     setPlan(updatedPlan);
   };
-
-  const scopeChangedHandler = (event, input) => {
-    const deductionDetail = plan.deduction.deductionDetails.find(
-      (dd) => dd.id === input.id
-    );
-    deductionDetail.scope = input.value;
-    //console.log(deductionDetail);
-    /*const updatedPlan = updateObject(
-      plan,
-      updateObject(deductionDetail, { scope: input.value })
-    );*/
-    console.log(plan);
-    //console.log(updatedPlan);
-    //setPlan(updatedPlan);
-    //console.log(plan);
+  const scopeChangedHandler = (event, ddIndex) => {
+    plan.deduction.deductionDetails[ddIndex].scope = event.target.value;
+    plan.deduction.deductionDetails[ddIndex].segments.forEach((segment) => {
+      segment.targetCount =
+        (plan.deduction.deductionDetails[ddIndex].physicianUniverse *
+          plan.deduction.deductionDetails[ddIndex].physicianUniverseCovered *
+          segment.rate *
+          event.target.value) /
+        1000000;
+      segment.visit = segment.targetCount * segment.targetFrequency;
+    });
+    setPlan(plan);
+    calcDeductionValues();
   };
+  const segmentChangedHandler = (event, sIndex, deductionDetail) => {
+    const deductionDetailIndex = plan.deduction.deductionDetails.findIndex(
+      (dd) => dd.id === deductionDetail.id
+    );
+    if (deductionDetailIndex < 0) return;
+    plan.deduction.deductionDetails[deductionDetailIndex].segments[
+      sIndex.index
+    ].rate = event.target.value;
+    plan.deduction.deductionDetails[deductionDetailIndex].segments[
+      sIndex.index
+    ].targetCount =
+      (deductionDetail.physicianUniverse *
+        deductionDetail.physicianUniverseCovered *
+        deductionDetail.scope *
+        event.target.value) /
+      1000000;
+    plan.deduction.deductionDetails[deductionDetailIndex].segments[
+      sIndex.index
+    ].visit =
+      plan.deduction.deductionDetails[deductionDetailIndex].segments[
+        sIndex.index
+      ].targetCount *
+      plan.deduction.deductionDetails[deductionDetailIndex].segments[
+        sIndex.index
+      ].targetFrequency;
+    setPlan(plan);
+    calcDeductionValues();
+  };
+  const targetFrequencyChangedHandler = (event, sIndex, deductionDetail) => {
+    const deductionDetailIndex = plan.deduction.deductionDetails.findIndex(
+      (dd) => dd.id === deductionDetail.id
+    );
+    if (deductionDetailIndex < 0) return;
+    plan.deduction.deductionDetails[deductionDetailIndex].segments[
+      sIndex.index
+    ].targetFrequency = event.target.value;
+    plan.deduction.deductionDetails[deductionDetailIndex].segments[
+      sIndex.index
+    ].visit =
+      plan.deduction.deductionDetails[deductionDetailIndex].segments[
+        sIndex.index
+      ].targetCount * event.target.value;
 
+    const updatedPlan = updateObject(plan, {
+      deduction: updateObject(plan.deduction, {
+        deductionDetails: [...plan.deduction.deductionDetails],
+      }),
+    });
+    setPlan(updatedPlan);
+    calcDeductionValues();
+  };
   const deductionChangedHandler = (event, input) => {
     if (input.name === 'annualWorkingDay') {
       const monthlyWorkingDay = Math.ceil(input.value / 12);
+      plan.deduction.monthlyWorkingDay = monthlyWorkingDay;
       const monthlyVisitCapacity =
         monthlyWorkingDay * plan.deduction.dailyVisit;
-      const updatedPlan = updateObject(plan, {
-        deduction: updateObject(plan.deduction, {
-          annualWorkingDay: input.value,
-          monthlyWorkingDay: monthlyWorkingDay,
-          monthlyVisitCapacity: monthlyVisitCapacity,
-        }),
-      });
-      setPlan(updatedPlan);
+      plan.deduction.monthlyVisitCapacity = monthlyVisitCapacity;
+      plan.deduction.annualWorkingDay = input.value;
+      setPlan(plan);
     } else if (input.name === 'dailyVisit') {
       const monthlyVisitCapacity =
         input.value * plan.deduction.monthlyWorkingDay;
-      const updatedPlan = updateObject(plan, {
-        deduction: updateObject(plan.deduction, {
-          dailyVisit: input.value,
-          monthlyVisitCapacity: monthlyVisitCapacity,
-        }),
-      });
-      setPlan(updatedPlan);
-    } else {
-      const updatedPlan = updateObject(plan, {
-        deduction: updateObject(plan.deduction, {
-          [input.name]: input.value,
-        }),
-      });
-      setPlan(updatedPlan);
+      plan.deduction.monthlyVisitCapacity = monthlyVisitCapacity;
+      plan.deduction.dailyVisit = input.value;
+      setPlan(plan);
     }
+    calcDeductionValues();
   };
-  const openSegmentModal = (event, deductionDetailId) => {
-    event.preventDefault();
-    console.log(deductionDetailId);
-    onOpenModal(
-      <SegmentForm
-        close={onCloseModal}
-        add={addSegmentToDeductionDetail}
-        deductionDetailId={deductionDetailId}
-      />
-    );
-  };
-  const addSegmentToDeductionDetail = (e, data) => {
+  const addSegment = (e, id) => {
+    e.preventDefault();
     const deductionDetail = plan.deduction.deductionDetails.find(
-      (dd) => dd.id === data.deductionDetailId
+      (dd) => dd.id === id
     );
-    deductionDetail.segments.push(data);
-    //const updatedPlan = updateObject(plan,{deduction:updateObject(plan.deduction,{deductionDetails:})})
-    onCloseModal();
+    deductionDetail.segments.push({
+      rate: 0,
+      targetCount: 0,
+      targetFrequency: 0,
+      visit: 0,
+    });
+    const updatedPlan = updateObject(plan, {
+      deduction: updateObject(plan.deduction, {
+        deductionDetails: [...plan.deduction.deductionDetails],
+      }),
+    });
+
+    setPlan(updatedPlan);
+    console.log('plan', plan);
+  };
+  const removeSegment = (e, index, id) => {
+    e.preventDefault();
+    const deductionDetail = plan.deduction.deductionDetails.find(
+      (dd) => dd.id === id
+    );
+    deductionDetail.segments.splice(index.index, 1);
+    const updatedPlan = updateObject(plan, {
+      deduction: updateObject(plan.deduction, {
+        deductionDetails: [...plan.deduction.deductionDetails],
+      }),
+    });
+    setPlan(updatedPlan);
+    calcDeductionValues();
+  };
+  const calcTotal = (items, prp) => {
+    return items.reduce((a, b) => {
+      return a + b[prp];
+    }, 0);
+  };
+  const calcDeductionValues = (a, b) => {
+    let totalVisit = 0;
+    let totalTargetCount = 0;
+    plan.deduction.deductionDetails.forEach((dd) => {
+      totalVisit += calcTotal(dd.segments, 'visit');
+      totalTargetCount += calcTotal(dd.segments, 'targetCount');
+    });
+
+    if (totalTargetCount === 0) totalTargetCount = 1;
+    const monthlyTargetVisitFrequency = (totalVisit / totalTargetCount).toFixed(
+      2
+    );
+    const monthlyTargetMPR = (parseInt(monthlyTargetVisitFrequency) === 0
+      ? 0
+      : plan.deduction.monthlyVisitCapacity / monthlyTargetVisitFrequency
+    ).toFixed(2);
+
+    const updatedPlan = updateObject(plan, {
+      deduction: updateObject(plan.deduction, {
+        monthlyTargetVisitFrequency: monthlyTargetVisitFrequency,
+        monthlyTargetMPR: monthlyTargetMPR,
+        targetedTotalPhysician: totalTargetCount,
+        targetedTotalVisit: totalVisit,
+      }),
+      deductionMPR: (totalVisit / plan.deduction.monthlyVisitCapacity).toFixed(
+        2
+      ),
+    });
+    setPlan(updatedPlan);
   };
   const panes = [
     {
@@ -153,7 +253,7 @@ const Update = (props) => {
           <Form.Group widths='equal'>
             <Form.Input
               label='Yıllık Net iş Günü'
-              fluid
+              error
               name='annualWorkingDay'
               placeholder='Yıllık Net iş Günü'
               value={plan.deduction.annualWorkingDay}
@@ -168,7 +268,7 @@ const Update = (props) => {
             />
             <Form.Input
               label='Günlük Ziyaret'
-              fluid
+              error
               name='dailyVisit'
               placeholder='Günlük Ziyaret'
               value={plan.deduction.dailyVisit}
@@ -202,30 +302,32 @@ const Update = (props) => {
               fluid
               name='targetedTotalPhysician'
               placeholder='Hedeflenen Toplam/Takım'
-              value={plan.deduction.targetedTotalPhysician}
+              value={plan.deduction.targetedTotalPhysician.toFixed(2)}
             />
             <Form.Input
               label='Hedeflenen Toplam  Ziyaret/Takım'
               fluid
               name='targetedTotalVisit'
               placeholder='Hedeflenen Toplam  Ziyaret/Takım'
-              value={plan.deduction.targetedTotalVisit}
+              value={plan.deduction.targetedTotalVisit.toFixed(2)}
             />
           </Form.Group>
           <Form.Group>
-            <Table striped>
+            <Table striped celled>
               <Table.Header>
                 <Table.Row>
                   <Table.HeaderCell>Uzmanlık</Table.HeaderCell>
                   <Table.HeaderCell>Hekim Evreni</Table.HeaderCell>
                   <Table.HeaderCell>Kapsanan Evren</Table.HeaderCell>
                   <Table.HeaderCell>Kapsam</Table.HeaderCell>
-                  <Table.HeaderCell>Segment Oranı</Table.HeaderCell>
+                  <Table.HeaderCell>
+                    Segment Oranı/Hedef Hekim/Hedef Frekans/Ziyaret
+                  </Table.HeaderCell>
                 </Table.Row>
               </Table.Header>
               <Table.Body>
-                {props.plan.deduction.deductionDetails.map((dd) => (
-                  <Table.Row key={dd.id}>
+                {plan.deduction.deductionDetails.map((dd, index) => (
+                  <Table.Row key={index}>
                     <Table.Cell>{dd.department.name}</Table.Cell>
                     <Table.Cell>{dd.physicianUniverse.toFixed(2)}</Table.Cell>
                     <Table.Cell>
@@ -233,36 +335,97 @@ const Update = (props) => {
                     </Table.Cell>
                     <Table.Cell>
                       <Form.Input
-                        fluid
+                        error
                         name='scope'
-                        value={dd.scope.toFixed(2)}
-                        onChange={(e) => scopeChangedHandler(e, dd)}
+                        value={dd.scope}
+                        onChange={(e) => scopeChangedHandler(e, index)}
                       />
                     </Table.Cell>
                     <Table.Cell>
                       <Table celled>
                         <Table.Body>
                           <Table.Row>
-                            {dd.segments.map((s) => (
-                              <Table.Cell key={s.id}>
+                            {dd.segments.map((s, index) => (
+                              <Table.Cell key={index}>
                                 {' '}
                                 <Form.Input
+                                  label='Segment Oranı'
+                                  size='mini'
+                                  error
+                                  name='rate'
+                                  value={s.rate}
+                                  onChange={(e) =>
+                                    segmentChangedHandler(e, { index }, dd)
+                                  }
+                                  action={{
+                                    icon: 'remove',
+                                    onClick: (e) =>
+                                      removeSegment(e, { index }, dd.id),
+                                  }}
+                                />
+                                <Form.Input
+                                  label='Hedef Hekim'
                                   size='mini'
                                   fluid
-                                  name='rate'
-                                  value={parseFloat(s.rate).toFixed(2)}
+                                  name='targetCount'
+                                  value={s.targetCount?.toFixed(2)}
+                                />
+                                <Form.Input
+                                  label='Hedef Frekans'
+                                  size='mini'
+                                  error
+                                  name='targetFrequency'
+                                  value={s.targetFrequency}
+                                  onChange={(e) =>
+                                    targetFrequencyChangedHandler(
+                                      e,
+                                      { index },
+                                      dd
+                                    )
+                                  }
+                                />
+                                <Form.Input
+                                  label='Ziyaret'
+                                  size='mini'
+                                  fluid
+                                  name='visit'
+                                  value={s.visit?.toFixed(2)}
                                 />
                               </Table.Cell>
                             ))}
                             <Table.Cell width={1}>
                               <Button
                                 icon='add'
-                                onClick={(e) => openSegmentModal(e, dd.id)}
+                                onClick={(e) => addSegment(e, dd.id)}
                               />
                             </Table.Cell>
                           </Table.Row>
                         </Table.Body>
                       </Table>
+                      <Segment basic>
+                        <Label as='a' basic size='medium' color='green'>
+                          Ziyaret Toplamı:{' '}
+                          {calcTotal(dd.segments, 'visit').toFixed(2)}
+                        </Label>
+
+                        <Label as='a' basic size='medium' color='blue'>
+                          Kapsam Toplamı:{' '}
+                          {calcTotal(dd.segments, 'targetCount').toFixed(2)}
+                        </Label>
+                        <Label as='a' basic size='medium' color='red'>
+                          Ortalama Frekans:{' '}
+                          {(
+                            calcTotal(dd.segments, 'visit').toFixed(2) /
+                            (parseInt(
+                              calcTotal(dd.segments, 'targetCount').toFixed(2)
+                            ) === 0
+                              ? 1
+                              : calcTotal(dd.segments, 'targetCount').toFixed(
+                                  2
+                                ))
+                          ).toFixed(2)}
+                        </Label>
+                      </Segment>
                     </Table.Cell>
                   </Table.Row>
                 ))}
@@ -282,9 +445,14 @@ const Update = (props) => {
     onUpdatePlan(plan);
   };
   let planUi = props.planLoading ? (
-    <PlanListPlaceHolder />
+    <Container style={{ width: '90%', margin: '7em auto' }}>
+      <PlanListPlaceHolder />
+    </Container>
   ) : (
-    <Form onSubmit={updatePlanHandler}>
+    <Form
+      onSubmit={updatePlanHandler}
+      style={{ width: '90%', margin: '7em auto' }}
+    >
       <Segment>
         <Form.Group widths='equal'>
           <Form.Input
@@ -325,6 +493,18 @@ const Update = (props) => {
             onChange={planItemChangedHandler}
           />
         </Form.Group>
+        <Form.Group widths='equal'>
+          <Form.Input
+            label='TÜMDENGELİM YÖNDETMİ İLE HESAPLANAN TTT SAYISI:'
+            name='deductionMPR'
+            value={plan.deductionMPR ? plan.deductionMPR : 0}
+          />
+          <Form.Input
+            label='TÜMEVARIM YÖNDETMİ İLE HESAPLANAN TTT SAYISI:'
+            name='inductionMPR'
+            value={plan.inductionMPR ? plan.inductionMPR : 0}
+          />
+        </Form.Group>
       </Segment>
       <Segment>
         <Tab panes={panes} />
@@ -362,7 +542,6 @@ const mapStateToProps = (state) => {
     departmentsLoading: state.department.loading,
     submitting: state.plan.submitting,
     planLoading: state.plan.loading,
-    plan: state.plan.plan,
     open: state.modal.open,
     body: state.modal.body,
   };
@@ -376,8 +555,6 @@ const mapDispatchToProps = (dispatch) => {
     onGetCities: () => dispatch(actions.getCities()),
     onGetDepartments: () => dispatch(actions.getDepartments()),
     onGetPlan: (id) => dispatch(actions.getPlan(id)),
-    onOpenModal: (body) => dispatch(actions.openModal(body)),
-    onCloseModal: () => dispatch(actions.closeModal()),
   };
 };
 

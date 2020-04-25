@@ -4,6 +4,7 @@ import { updateObject } from '../../shared/utility';
 
 const Create = (props) => {
   const [segment, setSegment] = useState({
+    id: 0,
     rate: 0.0,
     targetFrequency: 0.0,
   });

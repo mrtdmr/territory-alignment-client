@@ -6,11 +6,11 @@ const NotFound = () => {
     <Segment placeholder>
       <Header icon>
         <Icon name='search' />
-        Oops - we've looked everywhere but couldn't find this.
+        Aradığınız sayfa bulunamadı.
       </Header>
       <Segment.Inline>
-        <Button as={Link} to='/' primary>
-          Return to home page
+        <Button as={Link} to='/plans' primary>
+          Anasayfa
         </Button>
       </Segment.Inline>
     </Segment>

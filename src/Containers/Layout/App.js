@@ -5,7 +5,6 @@ import NotFound from '../../components/navigation/notFound';
 import Dashboard from '../../components/dashboard/dashboard';
 import Aux from '../../hoc/auxiliary/auxiliary';
 import Navigation from '../../components/navigation/navigation';
-import { Container } from 'semantic-ui-react';
 import { default as CreatePlanForm } from '../Plan/Create';
 import { default as PlanListForm } from '../Plan/List';
 import { default as UpdatePlanForm } from '../Plan/Update';
@@ -23,17 +22,12 @@ const App = (props) => {
           <Aux>
             <ModalContainer />
             <Navigation />
-            <Container style={{ marginTop: '7em' }}>
-              <Switch>
-                <Route path='/dashboard' exact component={Dashboard} />
-                <Route path='/plans' exact component={PlanListForm} />
-                <Route
-                  path='/update-plan/:id'
-                  exact
-                  component={UpdatePlanForm}
-                />
-                <Route path='/create-plan' exact component={CreatePlanForm} />
-                {/** 
+            <Switch>
+              <Route path='/dashboard' exact component={Dashboard} />
+              <Route path='/plans' exact component={PlanListForm} />
+              <Route path='/update-plan/:id' exact component={UpdatePlanForm} />
+              <Route path='/create-plan' exact component={CreatePlanForm} />
+              {/** 
                 <Route
                   path='/departments'
                   render={(props) => <DepartmentList {...props} />}
@@ -46,9 +40,8 @@ const App = (props) => {
                 />
                 */}
 
-                <Route component={NotFound} />
-              </Switch>
-            </Container>
+              <Route component={NotFound} />
+            </Switch>
           </Aux>
         )}
       />

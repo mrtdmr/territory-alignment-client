@@ -8,14 +8,21 @@ const sleep = (ms) => (response) =>
   new Promise((resolve) => setTimeout(() => resolve(response), ms));
 
 const requests = {
-  get: (url) => axios.get(url)
-    //.then(sleep(1000))
-    .then(responseBody),
-  post: (url, body) =>
-    axios.post(url, body)
+  get: (url) =>
+    axios
+      .get(url)
       //.then(sleep(1000))
       .then(responseBody),
-  put: (url, body) => axios.put(url, body).then(sleep(1000)).then(responseBody),
+  post: (url, body) =>
+    axios
+      .post(url, body)
+      //.then(sleep(1000))
+      .then(responseBody),
+  put: (url, body) =>
+    axios
+      .put(url, body)
+      //.then(sleep(1000))
+      .then(responseBody),
   delete: (url) => axios.delete(url).then(sleep(1000)).then(responseBody),
 };
 const Products = {
