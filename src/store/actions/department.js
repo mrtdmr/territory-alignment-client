@@ -20,13 +20,13 @@ export const getDepartmentsStart = () => {
     type: actionTypes.GET_DEPARTMENTS_START,
   };
 };
-export const getDepartments = () => (dispatch) =>
+export const getDepartments = (planId) => (dispatch) =>
   new Promise((resolve, reject) => {
     dispatch(getDepartmentsStart());
-    agent.Departments.list()
+    agent.Departments.list(planId)
       .then((res) => {
-        dispatch(getDepartmentsSuccess(res));
-        resolve(res);
+        dispatch(getDepartmentsSuccess(res.data));
+        resolve(res.data);
       })
       .catch((err) => {
         dispatch(getDepartmentsFail(err));

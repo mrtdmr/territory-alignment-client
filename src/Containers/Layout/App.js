@@ -8,6 +8,7 @@ import Navigation from '../../components/navigation/navigation';
 import { default as CreatePlanForm } from '../Plan/Create';
 import { default as PlanListForm } from '../Plan/List';
 import { default as UpdatePlanForm } from '../Plan/Update';
+import { default as PlanDetailForm } from '../Plan/Detail';
 import Home from '../Home/Home';
 import ModalContainer from '../Modal/Container';
 
@@ -27,6 +28,7 @@ const App = (props) => {
               <Route path='/plans' exact component={PlanListForm} />
               <Route path='/update-plan/:id' exact component={UpdatePlanForm} />
               <Route path='/create-plan' exact component={CreatePlanForm} />
+              <Route path='/plan-detail/:id' exact component={PlanDetailForm} />
               {/** 
                 <Route
                   path='/departments'

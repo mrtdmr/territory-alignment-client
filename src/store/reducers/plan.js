@@ -6,12 +6,12 @@ const initialState = {
   loading: false,
   plan: {
     deduction: {
-      deductionDetails: []
+      deductionDetails: [],
     },
     induction: {
-      inductionDetails: []
+      inductionDetails: [],
     },
-    team: {}
+    team: {},
   },
   submitting: false,
 };
@@ -70,6 +70,18 @@ const updatePlanFail = (state, action) => {
   return updateObject(state, { loading: false, submitting: false });
 };
 
+const addDepartmentToPlanStart = (state, action) => {
+  return updateObject(state, { loading: false, submitting: true });
+};
+
+const addDepartmentToPlanSuccess = (state, action) => {
+  return updateObject(state, { loading: false, submitting: false });
+};
+
+const addDepartmentToPlanFail = (state, action) => {
+  return updateObject(state, { loading: false, submitting: false });
+};
+
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.CREATE_PLAN_START:
@@ -96,6 +108,12 @@ const reducer = (state = initialState, action) => {
       return updatePlanSuccess(state, action);
     case actionTypes.UPDATE_PLAN_FAIL:
       return updatePlanFail(state, action);
+    case actionTypes.ADD_DEPARTMENT_TO_PLAN_START:
+      return addDepartmentToPlanStart(state, action);
+    case actionTypes.ADD_DEPARTMENT_TO_PLAN_SUCCESS:
+      return addDepartmentToPlanSuccess(state, action);
+    case actionTypes.ADD_DEPARTMENT_TO_PLAN_FAIL:
+      return addDepartmentToPlanFail(state, action);
     default:
       return state;
   }

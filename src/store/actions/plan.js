@@ -22,8 +22,8 @@ export const createPlanFail = (error) => {
 };
 
 export const createPlan = (plan) => {
-  console.log(plan);
   return (dispatch) => {
+    console.log('plan', plan);
     dispatch(createPlanStart());
     agent.Plans.create(plan)
       .then((res) => {
@@ -61,7 +61,7 @@ export const getPlans = () => {
     dispatch(getPlansStart());
     agent.Plans.list()
       .then((res) => {
-        dispatch(getPlansSuccess(res));
+        dispatch(getPlansSuccess(res.data));
       })
       .catch((err) => {
         dispatch(getPlansFail(err));
@@ -94,8 +94,8 @@ export const getPlan = (id) => (dispatch) =>
     dispatch(getPlanStart());
     agent.Plans.get(id)
       .then((res) => {
-        dispatch(getPlanSuccess(res));
-        resolve(res);
+        dispatch(getPlanSuccess(res.data));
+        resolve(res.data);
       })
       .catch((err) => {
         dispatch(getPlanFail(err));
@@ -122,17 +122,53 @@ export const updatePlanFail = (error) => {
   };
 };
 
-export const updatePlan = (plan) => {
-  return (dispatch) => {
+export const updatePlan = (plan) => (dispatch) =>
+  new Promise((resolve, reject) => {
     dispatch(updatePlanStart());
     agent.Plans.update(plan)
       .then((res) => {
         dispatch(updatePlanSuccess(res));
+        resolve(res);
         //dispatch(history.push('/plans'));
-        history.go(0);
+        //history.go(0);
       })
       .catch((err) => {
         dispatch(updatePlanFail(err));
+        reject(err);
+      });
+  });
+
+export const addDepartmentToPlanStart = () => {
+  return {
+    type: actionTypes.ADD_DEPARTMENT_TO_PLAN_START,
+  };
+};
+
+export const addDepartmentToPlanSuccess = (plan) => {
+  return {
+    type: actionTypes.ADD_DEPARTMENT_TO_PLAN_SUCCESS,
+  };
+};
+
+export const addDepartmentToPlanFail = (error) => {
+  return {
+    type: actionTypes.ADD_DEPARTMENT_TO_PLAN_FAIL,
+    error: error,
+  };
+};
+
+export const addDepartmentToPlan = (planId, departmentId) => {
+  return (dispatch) => {
+    dispatch(addDepartmentToPlanStart());
+    console.log('departmentId', departmentId);
+    agent.Plans.addDepartmentToPlan(planId, departmentId)
+      .then((res) => {
+        dispatch(addDepartmentToPlanSuccess(res));
+        //dispatch(history.push('/plans'));
+        //history.go(0);
+      })
+      .catch((err) => {
+        dispatch(addDepartmentToPlanFail(err));
       });
   };
 };

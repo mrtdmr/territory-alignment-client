@@ -1,6 +1,6 @@
 import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:5000/api';
-//axios.defaults.baseURL = 'https://localhost:44384/api';
+//axios.defaults.baseURL = 'https://localhost:5001/api';
+axios.defaults.baseURL = 'https://localhost:44394/api';
 const responseBody = (response) => {
   return response && response.data;
 };
@@ -33,30 +33,35 @@ const Products = {
   delete: (id) => requests.delete(`products/${id}`),
 };
 const Teams = {
-  list: () => requests.get(`/teams`),
+  list: () => requests.get(`/team/list`),
   get: (id) => requests.get(`/teams/${id}`),
   create: (team) => requests.post(`/teams`, team),
   update: (team) => requests.put(`teams/${team.id}`, team),
   delete: (id) => requests.delete(`teams/${id}`),
 };
 const Plans = {
-  list: () => requests.get(`/plans`),
-  get: (id) => requests.get(`/plans/${id}`),
-  create: (plan) => requests.post(`/plans`, plan),
-  update: (plan) => requests.put(`plans/${plan.id}`, plan),
+  list: () => requests.get(`/plan/list`),
+  get: (id) => requests.get(`/plan/get/${id}`),
+  create: (plan) => requests.post(`/plan/create`, plan),
+  update: (plan) => requests.put(`plan/save/`, plan),
   delete: (id) => requests.delete(`plans/${id}`),
+  addDepartmentToPlan: (planId, departmentId) =>
+    requests.post(`plans/${planId}`, {
+      departmentId: departmentId,
+    }),
 };
 const Markets = {
-  list: () => requests.get(`/markets`),
+  list: () => requests.get(`/market/list`),
   get: (id) => requests.get(`/markets/${id}`),
   create: (market) => requests.post(`/markets`, market),
   update: (market) => requests.put(`markets/${market.id}`, market),
   delete: (id) => requests.delete(`markets/${id}`),
 };
 const Cities = {
-  list: () => requests.get(`/cities`),
+  list: () => requests.get(`/city/list`),
 };
 const Departments = {
-  list: () => requests.get(`/departments`),
+  list: (planId) =>
+    requests.get(`/department/list?planId=${planId ? planId : ''}`),
 };
 export default { Products, Teams, Plans, Markets, Cities, Departments };

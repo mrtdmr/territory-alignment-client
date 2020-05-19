@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 const Container = (props) => {
   const { open, body } = props;
   return (
-    <Modal open={open} closeOnDimmerClick={false} size='mini'>
+    <Modal open={open} closeIcon size='large'>
       <Modal.Content>{body}</Modal.Content>
     </Modal>
   );

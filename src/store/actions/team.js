@@ -26,7 +26,7 @@ export const getTeams = () => {
     dispatch(getTeamsStart());
     agent.Teams.list()
       .then((res) => {
-        dispatch(getTeamsSuccess(res));
+        dispatch(getTeamsSuccess(res.data));
       })
       .catch((err) => {
         dispatch(getTeamsFail(err));

@@ -19,10 +19,11 @@ import { default as Loading } from '../../components/loading/loading';
 const Create = (props) => {
   const [plan, setPlan] = useState({
     name: '',
-    active: true,
-    actualMPR: 0.0,
-    minimumScope: 0.0,
+    actualMPR: 0,
+    minimumScope: 0,
     teamId: 0,
+    planPeriodId: 1,
+    dataPeriodId: 1,
     markets: [],
     cities: [],
     departments: [],
@@ -172,9 +173,9 @@ const Create = (props) => {
   };
 
   const createPlanHandler = () => {
-    plan.markets = marketsSelected;
-    plan.cities = citiesSelected;
-    plan.departments = departmentsSelected;
+    plan.markets = marketsSelected.map((m) => m.id);
+    plan.cities = citiesSelected.map((c) => c.id);
+    plan.departments = departmentsSelected.map((d) => d.id);
     onCreatePlan(plan);
   };
 
@@ -508,6 +509,9 @@ const mapStateToProps = (state) => {
     citiesLoading: state.city.loading,
     departmentsLoading: state.department.loading,
     submitting: state.plan.submitting,
+    markets: state.market.markets,
+    cities: state.city.cities,
+    departments: state.department.departments,
   };
 };
 

@@ -25,8 +25,8 @@ export const getMarkets = () => (dispatch) =>
     dispatch(getMarketsStart());
     agent.Markets.list()
       .then((res) => {
-        dispatch(getMarketsSuccess(res));
-        resolve(res);
+        dispatch(getMarketsSuccess(res.data));
+        resolve(res.data);
       })
       .catch((err) => {
         dispatch(getMarketsFail(err));

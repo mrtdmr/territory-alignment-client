@@ -25,8 +25,8 @@ export const getCities = () => (dispatch) =>
     dispatch(getCitiesStart());
     agent.Cities.list()
       .then((res) => {
-        dispatch(getCitiesSuccess(res));
-        resolve(res);
+        dispatch(getCitiesSuccess(res.data));
+        resolve(res.data);
       })
       .catch((err) => {
         dispatch(getCitiesFail(err));

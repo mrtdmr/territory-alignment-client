@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import * as actions from '../../store/actions/index';
 import { default as PlanListPlaceHolder } from '../../components/plan/listPlaceHolder';
 import { connect } from 'react-redux';
-import { default as Plan } from '../../components/plan/plan';
+import { default as Plan } from '../../components/plan/planListItem';
 import { Grid, Container } from 'semantic-ui-react';
 
 const List = (props) => {
