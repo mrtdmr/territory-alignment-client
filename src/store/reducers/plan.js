@@ -82,6 +82,20 @@ const addDepartmentToPlanFail = (state, action) => {
   return updateObject(state, { loading: false, submitting: false });
 };
 
+const deletePlanStart = (state, action) => {
+  return updateObject(state, { loading: true });
+};
+
+const deletePlanSuccess = (state, action) => {
+  return updateObject(state, {
+    loading: false,
+  });
+};
+
+const deletePlanFail = (state, action) => {
+  return updateObject(state, { loading: false });
+};
+
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.CREATE_PLAN_START:
@@ -114,6 +128,12 @@ const reducer = (state = initialState, action) => {
       return addDepartmentToPlanSuccess(state, action);
     case actionTypes.ADD_DEPARTMENT_TO_PLAN_FAIL:
       return addDepartmentToPlanFail(state, action);
+    case actionTypes.DELETE_PLAN_START:
+      return deletePlanStart(state, action);
+    case actionTypes.DELETE_PLAN_SUCCESS:
+      return deletePlanSuccess(state, action);
+    case actionTypes.DELETE_PLAN_FAIL:
+      return deletePlanFail(state, action);
     default:
       return state;
   }

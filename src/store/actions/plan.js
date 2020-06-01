@@ -1,6 +1,7 @@
 import * as actionTypes from './actionTypes';
 import agent from '../../api/agent';
 import { history } from '../..';
+import { toast } from 'react-toastify';
 
 export const createPlanStart = () => {
   return {
@@ -23,10 +24,11 @@ export const createPlanFail = (error) => {
 
 export const createPlan = (plan) => {
   return (dispatch) => {
-    console.log('plan', plan);
     dispatch(createPlanStart());
     agent.Plans.create(plan)
       .then((res) => {
+        if (res.isSuccess) toast.success('Plan eklendi.');
+        else toast.error('Plan eklenirken hata oluştu.');
         dispatch(createPlanSuccess(res));
         dispatch(history.push('/plans'));
       })
@@ -160,7 +162,6 @@ export const addDepartmentToPlanFail = (error) => {
 export const addDepartmentToPlan = (planId, departmentId) => {
   return (dispatch) => {
     dispatch(addDepartmentToPlanStart());
-    console.log('departmentId', departmentId);
     agent.Plans.addDepartmentToPlan(planId, departmentId)
       .then((res) => {
         dispatch(addDepartmentToPlanSuccess(res));
@@ -169,6 +170,42 @@ export const addDepartmentToPlan = (planId, departmentId) => {
       })
       .catch((err) => {
         dispatch(addDepartmentToPlanFail(err));
+      });
+  };
+};
+
+export const deletePlanSuccess = (plan) => {
+  return {
+    type: actionTypes.DELETE_PLAN_SUCCESS,
+  };
+};
+
+export const deletePlanFail = (error) => {
+  return {
+    type: actionTypes.DELETE_PLAN_FAIL,
+    error: error,
+  };
+};
+
+export const deletePlanStart = () => {
+  return {
+    type: actionTypes.DELETE_PLAN_START,
+  };
+};
+
+export const deletePlan = (id) => {
+  return (dispatch) => {
+    dispatch(deletePlanStart());
+    agent.Plans.delete(id)
+      .then((res) => {
+        if (res.isSuccess) {
+          toast.success('Plan silindi.');
+          dispatch(deletePlanSuccess(res));
+          dispatch(history.push('/plans'));
+        } else toast.error('Plan silinirken hata oluştu.');
+      })
+      .catch((err) => {
+        dispatch(deletePlanFail(err));
       });
   };
 };

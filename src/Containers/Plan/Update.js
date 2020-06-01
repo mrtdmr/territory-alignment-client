@@ -10,11 +10,13 @@ import {
   Label,
   Container,
   Icon,
+  Confirm,
 } from 'semantic-ui-react';
 import { Form } from 'semantic-ui-react';
 import Aux from '../../hoc/auxiliary/auxiliary';
 import { updateObject } from '../../shared/utility';
 import { default as InductionDetailsList } from '../../components/inductionDetail/list';
+import { toast } from 'react-toastify';
 const Update = (props) => {
   const {
     onGetPlan,
@@ -22,7 +24,7 @@ const Update = (props) => {
     onUpdatePlan,
     onGetDepartments,
     onOpenModal,
-    onCloseModal,
+    onDeletePlan,
   } = props;
   const [plan, setPlan] = useState({
     id: '',
@@ -31,8 +33,12 @@ const Update = (props) => {
     inductionMPR: 0.0,
     actualMPR: 0.0,
     minimumScope: 0.0,
-    planPeriodId: 1,
-    dataPeriodId: 1,
+    planPeriod: {
+      name: '',
+    },
+    dataPeriod: {
+      name: '',
+    },
     teamId: 0,
     team: {
       id: '',
@@ -106,6 +112,9 @@ const Update = (props) => {
   });
   const [departments, setDepartments] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [addButtonDisabled, setAddButtonDisabled] = useState(true);
+  const [confirm, setConfirm] = useState(false);
+  const [target, setTarget] = useState(undefined);
   useEffect(() => {
     if (props.match.params.id)
       onGetPlan(props.match.params.id).then((res) => {
@@ -115,7 +124,7 @@ const Update = (props) => {
         });
         onGetTeams();
       });
-  }, [onGetPlan, props.match.params.id, onGetTeams, onGetDepartments]);
+  }, [onGetPlan, onGetDepartments, onGetTeams, props.match.params.id]);
   const teamOptions = props.teams
     ? props.teams.map((t) => ({
         key: t.id,
@@ -266,11 +275,13 @@ const Update = (props) => {
     });
     updatedPlan.induction.inductionDetails.forEach((id) => {
       id.scopeWeightedGeographicRatio =
-        (id.marketGeographicRatio * updatedPlan.induction.geographicRatio +
-          (id.cityTotalPhysicianScoped / totalPhysicianScopedCount) *
-            100 *
-            updatedPlan.induction.physicianRatio) /
-        100;
+        totalPhysicianScopedCount === 0
+          ? 0
+          : (id.marketGeographicRatio * updatedPlan.induction.geographicRatio +
+              (id.cityTotalPhysicianScoped / totalPhysicianScopedCount) *
+                100 *
+                updatedPlan.induction.physicianRatio) /
+            100;
     });
     updatedPlan.deduction.deductionDetails.forEach((dd) => {
       dd.physicianUniverseCovered = 0;
@@ -367,6 +378,8 @@ const Update = (props) => {
     setPlan(updatedPlan);
   };
   const departmentDropdownChangedHandler = (event, input) => {
+    if (input.value !== '') setAddButtonDisabled(false);
+    else setAddButtonDisabled(true);
     setSelectedDepartment(input.value);
   };
   const getInductionDetails = (event) => {
@@ -378,9 +391,9 @@ const Update = (props) => {
     );
   };
   const addDepartmentToPlanHandler = (event) => {
+    event.preventDefault();
     const updatedPlan = { ...plan };
     updatedPlan.deduction.deductionDetails.push({
-      id: selectedDepartment,
       physicianUniverse: 0.0,
       physicianUniverseCovered: 0.0,
       scope: 0.0,
@@ -388,19 +401,34 @@ const Update = (props) => {
       departmentId: selectedDepartment,
       department: {
         id: selectedDepartment,
-        name: 'department',
+        name: '',
       },
       segments: [],
     });
-    onUpdatePlan(updatedPlan).then(() => {
+    setPlan(updatedPlan);
+    onUpdatePlan(plan).then(() => {
       onGetPlan(plan.id).then((res) => {
         setPlan(res);
         onGetDepartments(plan.id).then((res) => {
           setSelectedDepartment('');
+          setAddButtonDisabled(true);
           setDepartments(res);
         });
       });
     });
+  };
+  const showConfirm = (event) => {
+    event.preventDefault();
+    setConfirm(true);
+  };
+  const closeConfirm = (event) => {
+    event.preventDefault();
+    setConfirm(false);
+  };
+  const deletePlanHandler = (event) => {
+    event.preventDefault();
+    setConfirm(false);
+    onDeletePlan(plan.id);
   };
   const panes = [
     {
@@ -493,6 +521,7 @@ const Update = (props) => {
                       <Button
                         floated='right'
                         positive
+                        disabled={addButtonDisabled}
                         content='Ekle'
                         onClick={addDepartmentToPlanHandler}
                       />
@@ -782,9 +811,11 @@ const Update = (props) => {
       ),
     },
   ];
-
-  const updatePlanHandler = () => {
-    onUpdatePlan(plan).then(() => {
+  const updatePlanHandler = (event) => {
+    event.preventDefault();
+    onUpdatePlan(plan).then((response) => {
+      if (response.isSuccess) toast.success('Plan güncellendi.');
+      else toast.error('Plan güncellenirken hata oluştu.');
       onGetPlan(plan.id).then((res) => {
         setPlan(res);
       });
@@ -795,11 +826,22 @@ const Update = (props) => {
       <PlanListPlaceHolder />
     </Container>
   ) : (
-    <Form
-      onSubmit={updatePlanHandler}
-      style={{ width: '90%', margin: '7em auto' }}
-    >
+    <Form style={{ width: '90%', margin: '7em auto' }}>
       <Segment color='green'>
+        <Form.Group widths='equal'>
+          <Form.Input
+            label='Plan Periyodu'
+            fluid
+            name='planPeriod'
+            value={plan.planPeriod.name}
+          />
+          <Form.Input
+            label='Veri Periyodu'
+            fluid
+            name='dataPeriod'
+            value={plan.dataPeriod.name}
+          />
+        </Form.Group>
         <Form.Group widths='equal'>
           <Form.Input
             label='Plan Adı'
@@ -862,10 +904,21 @@ const Update = (props) => {
       <Segment clearing color='green'>
         <Button
           floated='right'
+          negative
+          name='delete'
+          content='Sil'
+          onClick={showConfirm}
+        />
+        <Button
+          floated='right'
           positive
-          type='submit'
+          name='save'
           content='Kaydet'
-          loading={props.submitting}
+          loading={props.submitting && target === 'save'}
+          onClick={(e) => {
+            setTarget('save');
+            updatePlanHandler(e);
+          }}
         />
         <Button
           //              onClick={() => props.history.goBack()}
@@ -878,7 +931,20 @@ const Update = (props) => {
       </Segment>
     </Form>
   );
-  return <Aux>{planUi}</Aux>;
+  return (
+    <Aux>
+      {planUi}
+      <Confirm
+        open={confirm}
+        onConfirm={deletePlanHandler}
+        onCancel={closeConfirm}
+        content='Onaylıyor musunuz?'
+        confirmButton='Evet'
+        cancelButton='Vazgeç'
+        header='Kayıt Silinecek'
+      />
+    </Aux>
+  );
 };
 const mapStateToProps = (state) => {
   return {
@@ -903,6 +969,7 @@ const mapDispatchToProps = (dispatch) => {
     onUpdatePlan: (plan) => dispatch(actions.updatePlan(plan)),
     onGetDepartments: (planId) => dispatch(actions.getDepartments(planId)),
     onGetPlan: (id) => dispatch(actions.getPlan(id)),
+    onDeletePlan: (id) => dispatch(actions.deletePlan(id)),
     onOpenModal: (body) => dispatch(actions.openModal(body)),
     onCloseModal: () => dispatch(actions.closeModal()),
   };

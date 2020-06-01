@@ -1,6 +1,28 @@
 import axios from 'axios';
-//axios.defaults.baseURL = 'https://localhost:5001/api';
-axios.defaults.baseURL = 'https://localhost:44394/api';
+import { toast } from 'react-toastify';
+import { history } from '../index';
+axios.defaults.baseURL = 'https://localhost:5001/api';
+//axios.defaults.baseURL = 'https://localhost:44394/api';
+axios.interceptors.request.use(undefined, (error) => {
+  return Promise.reject(error);
+});
+axios.interceptors.response.use(undefined, (error) => {
+  if (error) {
+    if (error.response) {
+      const { status } = error.response;
+      if (error.message === 'Network Error' && !error.response)
+        toast.error('Ağ hatası, servise erişilemiyor.');
+      else if (status === 404) {
+        history.push('/notfound');
+      } else if (status === 500) toast.error('Serviste hata oluştu.');
+      else toast.error('Hata Oluştu');
+    } else {
+      toast.error('Hata Oluştu');
+    }
+    throw error;
+  }
+});
+
 const responseBody = (response) => {
   return response && response.data;
 };
@@ -43,8 +65,8 @@ const Plans = {
   list: () => requests.get(`/plan/list`),
   get: (id) => requests.get(`/plan/get/${id}`),
   create: (plan) => requests.post(`/plan/create`, plan),
-  update: (plan) => requests.put(`plan/save/`, plan),
-  delete: (id) => requests.delete(`plans/${id}`),
+  update: (plan) => requests.put(`plan/save`, plan),
+  delete: (id) => requests.delete(`plan/delete/${id}`),
   addDepartmentToPlan: (planId, departmentId) =>
     requests.post(`plans/${planId}`, {
       departmentId: departmentId,

@@ -16,6 +16,7 @@ import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import { default as ScrollToTop } from './components/ui/scrollToTop/scrollToTop';
+import 'react-toastify/dist/ReactToastify.min.css';
 
 const composeEnhancers =
   process.env.NODE_ENV === 'development'

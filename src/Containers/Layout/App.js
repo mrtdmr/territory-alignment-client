@@ -11,6 +11,7 @@ import { default as UpdatePlanForm } from '../Plan/Update';
 import { default as PlanDetailForm } from '../Plan/Detail';
 import Home from '../Home/Home';
 import ModalContainer from '../Modal/Container';
+import { ToastContainer } from 'react-toastify';
 
 const App = (props) => {
   return (
@@ -22,6 +23,7 @@ const App = (props) => {
         render={() => (
           <Aux>
             <ModalContainer />
+            <ToastContainer position='bottom-right' />
             <Navigation />
             <Switch>
               <Route path='/dashboard' exact component={Dashboard} />

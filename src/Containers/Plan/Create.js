@@ -22,11 +22,9 @@ const Create = (props) => {
     actualMPR: 0,
     minimumScope: 0,
     teamId: 0,
-    planPeriodId: 1,
-    dataPeriodId: 1,
-    markets: [],
-    cities: [],
-    departments: [],
+    selectedMarketIds: [],
+    selectedCityIds: [],
+    selectedDepartmentIds: [],
   });
 
   const {
@@ -173,9 +171,9 @@ const Create = (props) => {
   };
 
   const createPlanHandler = () => {
-    plan.markets = marketsSelected.map((m) => m.id);
-    plan.cities = citiesSelected.map((c) => c.id);
-    plan.departments = departmentsSelected.map((d) => d.id);
+    plan.selectedMarketIds = marketsSelected.map((m) => m.id);
+    plan.selectedCityIds = citiesSelected.map((c) => c.id);
+    plan.selectedDepartmentIds = departmentsSelected.map((d) => d.id);
     onCreatePlan(plan);
   };
 

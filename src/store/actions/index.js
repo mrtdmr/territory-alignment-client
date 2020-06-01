@@ -11,6 +11,7 @@ export {
   getPlan,
   updatePlan,
   addDepartmentToPlan,
+  deletePlan,
 } from './plan';
 export { getMarkets } from './market';
 export { getCities } from './city';
