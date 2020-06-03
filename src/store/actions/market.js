@@ -1,5 +1,6 @@
 import * as actionTypes from './actionTypes';
 import agent from '../../api/agent';
+import { toast } from 'react-toastify';
 
 export const getMarketsSuccess = (markets) => {
   return {
@@ -25,8 +26,10 @@ export const getMarkets = () => (dispatch) =>
     dispatch(getMarketsStart());
     agent.Markets.list()
       .then((res) => {
-        dispatch(getMarketsSuccess(res.data));
-        resolve(res.data);
+        if (res.isSuccess) {
+          dispatch(getMarketsSuccess(res.data));
+          resolve(res.data);
+        } else toast.error('Pazarlar listelenemedi.');
       })
       .catch((err) => {
         dispatch(getMarketsFail(err));

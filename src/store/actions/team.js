@@ -1,5 +1,6 @@
 import * as actionTypes from './actionTypes';
 import agent from '../../api/agent';
+import { toast } from 'react-toastify';
 
 export const getTeamsSuccess = (teams) => {
   return {
@@ -26,7 +27,8 @@ export const getTeams = () => {
     dispatch(getTeamsStart());
     agent.Teams.list()
       .then((res) => {
-        dispatch(getTeamsSuccess(res.data));
+        if (res.isSuccess) dispatch(getTeamsSuccess(res.data));
+        else toast.error('Takımlar listelenemedi.');
       })
       .catch((err) => {
         dispatch(getTeamsFail(err));

@@ -1,5 +1,6 @@
 import * as actionTypes from './actionTypes';
 import agent from '../../api/agent';
+import { toast } from 'react-toastify';
 
 export const getDepartmentsSuccess = (departments) => {
   return {
@@ -25,8 +26,10 @@ export const getDepartments = (planId) => (dispatch) =>
     dispatch(getDepartmentsStart());
     agent.Departments.list(planId)
       .then((res) => {
-        dispatch(getDepartmentsSuccess(res.data));
-        resolve(res.data);
+        if (res.isSuccess) {
+          dispatch(getDepartmentsSuccess(res.data));
+          resolve(res.data);
+        } else toast.error('Uzmanlıklar listelenemedi.');
       })
       .catch((err) => {
         dispatch(getDepartmentsFail(err));

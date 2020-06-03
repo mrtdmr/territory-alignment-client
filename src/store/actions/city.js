@@ -1,5 +1,6 @@
 import * as actionTypes from './actionTypes';
 import agent from '../../api/agent';
+import { toast } from 'react-toastify';
 
 export const getCitiesSuccess = (cities) => {
   return {
@@ -25,8 +26,10 @@ export const getCities = () => (dispatch) =>
     dispatch(getCitiesStart());
     agent.Cities.list()
       .then((res) => {
-        dispatch(getCitiesSuccess(res.data));
-        resolve(res.data);
+        if (res.isSccuess) {
+          dispatch(getCitiesSuccess(res.data));
+          resolve(res.data);
+        } else toast.error('Şehirler listelenemedi.');
       })
       .catch((err) => {
         dispatch(getCitiesFail(err));
