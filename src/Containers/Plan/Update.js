@@ -17,6 +17,7 @@ import Aux from '../../hoc/auxiliary/auxiliary';
 import { updateObject } from '../../shared/utility';
 import { default as InductionDetailsList } from '../../components/inductionDetail/list';
 import { toast } from 'react-toastify';
+import { default as InductionDetailItem } from '../../components/inductionDetail/item';
 const Update = (props) => {
   const {
     onGetPlan,
@@ -382,13 +383,10 @@ const Update = (props) => {
     else setAddButtonDisabled(true);
     setSelectedDepartment(input.value);
   };
-  const getInductionDetails = (event) => {
-    event.preventDefault();
-    onOpenModal(
-      <InductionDetailsList
-        inductionDetails={plan.induction.inductionDetails}
-      />
-    );
+  const getInductionDetails = (e, idIndex) => {
+    const induction = plan.induction.inductionDetails[idIndex];
+    e.preventDefault();
+    onOpenModal(<InductionDetailItem id={induction} />);
   };
   const addDepartmentToPlanHandler = (event) => {
     event.preventDefault();
@@ -799,7 +797,7 @@ const Update = (props) => {
                         basic
                         size='mini'
                         icon='eye'
-                        onClick={getInductionDetails}
+                        onClick={(e) => getInductionDetails(e, idIndex)}
                       />
                     </Table.Cell>
                   </Table.Row>
